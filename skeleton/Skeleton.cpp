@@ -10,7 +10,21 @@ namespace {
 struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
     PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM) {
         for (auto &F : M) {
-            errs() << "I saw a function called " << F.getName() << "!\n";
+            for(auto &BB : F) {
+                Instruction* terminator = BB.getTerminator();
+                int numSuccs = terminator->getNumSuccessors();
+                if(numSuccs == 2){
+                    BasicBlock* bb1 = terminator->getSuccessor(0);
+                    BasicBlock* bb2 = terminator->getSuccessor(1);
+                    if(bb2.size() > bb1.size()){
+                        errs() << "Inverting a branch instruction in function " << F.getName() << "!\n";
+                        IRBuilder<> builder(terminator);
+                        llvm::InvertBranch((BranchInst*)terminator, builder);
+                    }
+                }
+            }
+            // errs() << "I saw a function called " << F.getName() << "!\n";
+            
         }
         return PreservedAnalyses::all();
     };
@@ -32,3 +46,4 @@ llvmGetPassPluginInfo() {
         }
     };
 }
+;
