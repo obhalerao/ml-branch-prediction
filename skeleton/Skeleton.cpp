@@ -1,6 +1,7 @@
 #include "llvm/Pass.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Support/raw_ostream.h"
 
 using namespace llvm;
@@ -16,7 +17,7 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
                 if(numSuccs == 2){
                     BasicBlock* bb1 = terminator->getSuccessor(0);
                     BasicBlock* bb2 = terminator->getSuccessor(1);
-                    if(bb2.size() > bb1.size()){
+                    if(bb2->size() > bb1->size()){
                         errs() << "Inverting a branch instruction in function " << F.getName() << "!\n";
                         IRBuilder<> builder(terminator);
                         llvm::InvertBranch((BranchInst*)terminator, builder);
